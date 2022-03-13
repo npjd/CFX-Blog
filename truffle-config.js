@@ -10,7 +10,7 @@ module.exports = {
 
   compilers: {
     solc: {
-      version: "0.6.9", // This contract needs to be compiled with the 0.6.9 version compiler
+      version: "^0.8.0", // This contract needs to be compiled with the 0.6.9 version compiler
     },
   },
 };
