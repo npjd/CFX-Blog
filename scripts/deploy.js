@@ -10,7 +10,7 @@ async function main() {
     logger: console,
   });
 
-  const acct = cfx.wallet.addPrivateKey("PRIVATE KEY");
+  const acct = cfx.wallet.addPrivateKey("ENTER PRIV");
 
   const contract = cfx.Contract({ abi, bytecode });
 
