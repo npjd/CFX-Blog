@@ -49,13 +49,6 @@ export default function Home() {
               <a>
                 <div className={linkStyle}>
                   <p className={postTitle}>{post[1]}</p>
-                  <div className={arrowContainer}>
-                    <img
-                      src="/right-arrow.svg"
-                      alt="Right arrow"
-                      className={smallArrow}
-                    />
-                  </div>
                 </div>
               </a>
             </Link>

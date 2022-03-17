@@ -4,9 +4,9 @@ import ReactMarkdown from "react-markdown";
 import { css } from "@emotion/css";
 import dynamic from "next/dynamic";
 import { create } from "ipfs-http-client";
-
+import { Conflux } from "js-conflux-sdk";
 import { contractAddress } from "../../config";
-import Blog from "../../artifacts/contracts/Blog.sol/Blog.json";
+import {abi} from "../../../artifacts/contracts/Blog.sol/Blog.json";
 
 const ipfsURI = "https://ipfs.io/ipfs/";
 const client = create("https://ipfs.infura.io:5001/api/v0");
@@ -27,21 +27,15 @@ export default function Post() {
   async function fetchPost() {
     /* we first fetch the individual post by ipfs hash from the network */
     if (!id) return;
-    let provider;
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "local") {
-      provider = new ethers.providers.JsonRpcProvider();
-    } else if (process.env.NEXT_PUBLIC_ENVIRONMENT === "testnet") {
-      provider = new ethers.providers.JsonRpcProvider(
-        "https://rpc-mumbai.matic.today"
-      );
-    } else {
-      provider = new ethers.providers.JsonRpcProvider(
-        "https://polygon-rpc.com/"
-      );
-    }
-    const contract = new ethers.Contract(contractAddress, Blog.abi, provider);
+    const conflux = new Conflux({
+      url: "https://test.confluxrpc.com",
+      networkId: 1,
+    });
+
+    const contract = conflux.Contract({ abi, address: contractAddress });
+
     const val = await contract.fetchPost(id);
-    const postId = val[0].toNumber();
+    const postId = val[0]
 
     /* next we fetch the IPFS metadata from the network */
     const ipfsUrl = `${ipfsURI}/${id}`;
@@ -68,9 +62,11 @@ export default function Post() {
 
   async function updatePost() {
     const hash = await savePostToIpfs();
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, Blog.abi, signer);
+    const conflux = new Conflux({
+      url: "https://test.confluxrpc.com",
+      networkId: 1,
+    });
+    const contract = conflux.Contract({ abi, address: contractAddress });
     await contract.updatePost(post.id, post.title, hash, true);
     router.push("/");
   }
