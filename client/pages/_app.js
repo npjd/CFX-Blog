@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import { useState } from "react";
 import Link from "next/link";
 import { css } from "@emotion/css";
+import { ethers } from 'ethers'
 import { AccountContext } from "../context.js";
 import { ownerAddress } from "../config";
 import "easymde/dist/easymde.min.css";
@@ -11,8 +12,8 @@ function MyApp({ Component, pageProps }) {
   const [account, setAccount] = useState(null);
 
   const connect = async () => {
-    await window.conflux.request({ method: "cfx_requestAccounts" });
-    let account = (await window.conflux.request({ method: "cfx_accounts" }))[0];
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    let account = (await window.ethereum.request({ method: "eth_accounts" }))[0];
     setAccount(account);
     
   }

@@ -39,6 +39,7 @@ export default function Post() {
 
     /* next we fetch the IPFS metadata from the network */
     const ipfsUrl = `${ipfsURI}/${id}`;
+    console.log(ipfsUrl);
     const response = await fetch(ipfsUrl);
     const data = await response.json();
     if (data.coverImage) {

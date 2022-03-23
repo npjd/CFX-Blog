@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/css": "^11.7.1",
     "easymde": "^2.16.1",
+    "ethers": "^5.6.1",
     "ipfs-http-client": "^56.0.1",
     "js-conflux-sdk": "^2.0.4",
     "next": "12.1.0",
