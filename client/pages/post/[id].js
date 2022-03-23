@@ -6,7 +6,7 @@ import { AccountContext } from "../../context";
 import { css } from "@emotion/css";
 import { contractAddress, ownerAddress } from "../../config";
 import { abi } from "../../../artifacts/contracts/Blog.sol/Blog.json";
-import { Conflux } from "js-conflux-sdk";
+import { ethers } from "ethers";
 
 const ipfsURI = "https://ipfs.io/ipfs/";
 
@@ -51,13 +51,10 @@ export default function Post({ post }) {
 
 export async function getStaticPaths() {
   /* here we fetch the posts from the network */
-  const conflux = new Conflux({
-    url: "https://test.confluxrpc.com",
-    networkId: 1,
-  });
+  let provider;
+  provider = new ethers.providers.JsonRpcProvider("https://evmtestnet.confluxrpc.com");
 
-  const contract = conflux.Contract({ abi, address: contractAddress });
-
+  const contract = new ethers.Contract(contractAddress, abi, provider);
   const data = await contract.fetchPosts();
 
   /* then we map over the posts and create a params object passing */
@@ -76,11 +73,12 @@ export async function getStaticProps({ params }) {
   /* we can us it to fetch the data from IPFS and pass the */
   /* post data into the page as props */
   const { id } = params;
-  const ipfsUrl = `${ipfsURI}/${id}`;
+  const ipfsUrl = `${ipfsURI}${id}`;
+  console.log("ipfsUrl", ipfsUrl);
   const response = await fetch(ipfsUrl);
   const data = await response.json();
   if (data.coverImage) {
-    let coverImage = `${ipfsURI}/${data.coverImage}`;
+    let coverImage = `${ipfsURI}${data.coverImage}`;
     data.coverImage = coverImage;
   }
 

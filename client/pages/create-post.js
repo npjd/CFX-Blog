@@ -5,7 +5,7 @@ import { css } from "@emotion/css";
 import { create } from "ipfs-http-client";
 import { AccountContext } from "../context";
 import { contractAddress } from "../config";
-import { Conflux } from "js-conflux-sdk";
+import { ethers } from "ethers";
 import { abi } from "../../artifacts/contracts/Blog.sol/Blog.json";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
@@ -59,15 +59,14 @@ function CreatePost() {
   async function savePost(hash) {
     /* anchor post to smart contract */
     if (typeof window.ethereum !== "undefined") {
-      const conflux = new Conflux();
-      conflux.provider = window.conflux;
-      const contract = conflux.Contract({ abi, address: contractAddress });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, abi, signer);
       console.log("contract: ", contract);
       try {
-        const val = await contract
-          .createPost(post.title, hash)
-          .sendTransaction({ from: account })
-          .executed();
+        const val = await contract.createPost(post.title, hash);
+        /* optional - wait for transaction to be confirmed before rerouting */
+        /* await provider.waitForTransaction(val.hash) */
         console.log("val: ", val);
       } catch (err) {
         console.log("Error: ", err);

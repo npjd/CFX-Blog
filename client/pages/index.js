@@ -3,18 +3,17 @@ import { useContext } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { AccountContext } from "../context";
-import { Conflux } from "js-conflux-sdk";
-import { useEffect, useState } from "react";
+import { ethers } from "ethers";
 /* import contract address and contract owner address */
 import { contractAddress, ownerAddress } from "../config";
 
 /* import Application Binary Interface (ABI) */
 import { abi } from "../../artifacts/contracts/Blog.sol/Blog.json";
 
-export default function Home() {
+export default function Home(props) {
   /* posts are fetched server side and passed in as props */
   /* see getServerSideProps */
-  const [posts, setPosts] = useState(null);
+  const { posts } = props;
   const account = useContext(AccountContext);
 
   const router = useRouter();
@@ -22,36 +21,21 @@ export default function Home() {
     router.push("/create-post");
   }
 
-  useEffect(() => {
-    async function fetchPosts() {
-      if (typeof window !== "undefined" && account) {
-        const conflux = new Conflux();
-
-        conflux.provider = window.conflux;
-        const contract = conflux.Contract({ abi, address: contractAddress });
-
-        const receipt = await contract
-          .fetchPosts()
-        console.log("name",receipt);
-        setPosts(receipt);
-      }
-    }
-    fetchPosts();
-  }, [account]);
-
   return (
     <div>
       <div className={postList}>
         {posts &&
           /* map over the posts array and render a button with the post title */
           posts.map((post, index) => (
-            <Link href={`/post/${post[2]}`} key={index}>
-              <a>
-                <div className={linkStyle}>
-                  <p className={postTitle}>{post[1]}</p>
-                </div>
-              </a>
-            </Link>
+            <li key={index}>
+              <Link href={`/post/${post[2]}`}>
+                <a>
+                  <div className={linkStyle}>
+                    <p className={postTitle}>{post[1]}</p>
+                  </div>
+                </a>
+              </Link>
+            </li>
           ))}
       </div>
       <div className={container}>
@@ -66,6 +50,21 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://evmtestnet.confluxrpc.com"
+  );
+
+  const contract = new ethers.Contract(contractAddress, abi, provider);
+  const data = await contract.fetchPosts();
+  console.log("contract data", data);
+  return {
+    props: {
+      posts: JSON.parse(JSON.stringify(data)),
+    },
+  };
 }
 
 const arrowContainer = css`
